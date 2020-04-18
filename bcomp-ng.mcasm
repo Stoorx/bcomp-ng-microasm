@@ -1,0 +1,144 @@
+/**
+ *  Bcomp-Ng 2.5 Microcode
+ *  @author Stoorx
+ */
+
+// Commutator
+snippet CommDirect = HTOH, LTOL
+snippet CommCross = HTOL, LTOH
+
+// Flags
+snippet FlSetNZV = STNZ, SETV
+
+// Moves
+snippet MovDRtoCR = RDDR, CommDirect, WRCR
+snippet MovACtoDR = RDAC, CommDirect, WRDR
+snippet MOvPStoAC = RDPS, CommDirect, WRAC
+
+// Reads
+snippet ReadLowCR = RDCR, LTOL
+snippet ReadHighCR = RDCR, HTOL
+snippet ReadLowPS = RDPS, LTOL
+snippet ReadHighPS = RDPS, HTOL
+
+macro SystemLevelOrGP {
+    if ReadHighPS bit 1 is 0 goto faultGP
+}
+
+start:
+    // Initialization
+    do STNZ, SETV, SETC, WRDR, WRCR, WRSP, WRAC, WRBR, WRAR
+
+instructionFetch:
+    // Instruction fetch
+    do RDIP, CommDirect, WRAR, WRBR
+    do RDBR, PLS1, CommDirect, WRIP, LOAD
+    do MovDRtoCR
+
+instructionDecode:
+    // Decoding
+    if ReadHighCR bit 7 is 1 goto op_8F_xxx
+
+
+// Addressless instructions
+iNop:
+    goto interruptProcessing
+
+iHlt:
+    do HALT // FIXME! there is no such valve in micro-asm
+    goto interruptProcessing
+
+iLpsS:
+    do RDAC, CommDirect, WRPS
+    goto interruptProcessing
+
+iLpsU:
+    do MovACtoDR
+    do RDDR, LTOL, WRDR
+    do RDPS, HTOH, WRBR
+    do RDBR, RDDR, CommDirect, WRPS
+    goto interruptProcessing
+
+iSpsS:
+    do MovPStoAC
+    goto interruptProcessing
+
+iSpsU:
+    do MovPStoAC
+    do RDAC, LTOL, WRAC
+    goto interruptProcessing
+
+iLitr:
+    invoke SystemLevelOrGP
+    do RDAC, CommDirect, WITL
+    goto interruptProcessing
+
+iSitr:
+    invoke SystemLevelOrGP
+    do RITL, CommDirect, WRAC
+    goto interruptProcessing
+
+iLptr:
+    invoke SystemLevelOrGP
+    do RDAC, CommDirect, WPTR
+    goto interruptProcessing
+
+iSptr:
+    invoke SystemLevelOrGP
+    do RPTR, CommDirect, WRAC
+    goto interruptProcessing
+
+/*
+    TODO: interrupt commands
+*/
+
+iIret:
+    // TODO
+
+iEi:
+    invoke SystemLevelOrGP
+    do PLS1, LTOH, WRDR
+    do RDPS, RDDR, COML, COMR, SORA, CommDirect, WRBR
+    do RDBR, COML, CommDirect, WRPS
+    goto interruptProcessing
+
+iDi:
+    invoke SystemLevelOrGP
+    do PLS1, LTOH, WRDR
+    do RDPS, RDDR, COMR, SORA, CommDirect, WRPS
+    goto interruptProcessing
+
+iPush:
+    do RDSP, COML, CommDirect, WRSP, WRAR
+    do RDAC, CommDirect, WRDR, STOR
+    goto interruptProcessing
+
+iPop:
+    do RDSP, CommDirect, WRAR, LOAD
+    do RDPS, CommDirect, WRBR
+    do RDDR, CommDirect, WRAC
+    do RDBR, PLS1, CommDirect, WRSP
+    goto interruptProcessing
+
+iCla:
+    do FlSetNZV, WRAC
+    goto interruptProcessing
+
+iCma:
+    do RDAC, COML, CommDirect, FlSetNZV, WRAC
+    goto interruptProcessing
+
+iClc:
+    do SETC
+    goto interruptProcessing
+
+iCmc:
+    if ReadLowPS bit 0 is 1 goto iClc
+    do COML, COMR, SETC // HTOH?
+    goto interruptProcessing
+
+
+faultUD:
+faultGP:
+
+interruptProcessing:
