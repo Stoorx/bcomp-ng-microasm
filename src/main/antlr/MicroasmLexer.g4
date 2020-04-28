@@ -90,6 +90,17 @@ ValveSETC: (S E T C);
 ValveSETV: (S E T V);
 ValveSTNZ: (S T N Z);
 
+// Extensions
+ValveRPTR: (R P T R);
+ValveWPTR: (W P T R);
+ValveRITR: (P I T R);
+ValveWITR: (W I T R);
+ValveRITL: (R I T L);
+ValveWITL: (W I T L);
+
+// Machine control
+ValveHALT: (H A L T);
+
 IdLiteral: [_a-zA-Z][_a-zA-Z0-9]*;
 Digit: [0-9];
 

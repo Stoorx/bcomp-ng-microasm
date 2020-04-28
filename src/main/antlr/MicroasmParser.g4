@@ -93,7 +93,7 @@ macroStatememnt
       BRACE_R
     ;
 
-valveLiteral
+valveLiteral // ok
     : ValveWRAC
     | ValveRDAC
     | ValveWRBR
@@ -129,9 +129,16 @@ valveLiteral
     | ValveSETC
     | ValveSETV
     | ValveSTNZ
+    | ValveRPTR
+    | ValveWPTR
+    | ValveRITR
+    | ValveWITR
+    | ValveRITL
+    | ValveWITL
+    | ValveHALT
     ;
 
-cmcValveLiteral
+cmcValveLiteral // ok
     : ValveRDAC
     | ValveRDBR
     | ValveRDPS
@@ -149,6 +156,6 @@ cmcValveLiteral
     | ValveHTOL
     ;
 
-booleanLiteral
+booleanLiteral // ok
     : Digit
     ;

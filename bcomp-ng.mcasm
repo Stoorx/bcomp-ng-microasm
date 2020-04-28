@@ -13,7 +13,7 @@ snippet FlSetNZV = STNZ, SETV
 // Moves
 snippet MovDRtoCR = RDDR, CommDirect, WRCR
 snippet MovACtoDR = RDAC, CommDirect, WRDR
-snippet MOvPStoAC = RDPS, CommDirect, WRAC
+snippet MovPStoAC = RDPS, CommDirect, WRAC
 
 // Reads
 snippet ReadLowCR = RDCR, LTOL
